@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>View Your Yalla Ludo Data</title>
+<style>
+body{font-family:Arial, sans-serif;background:linear-gradient(135deg,#fff7e6,#fff1d6);min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;padding:20px}
+.box{width:100%;max-width:420px;background:#fff;padding:20px;border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.08);text-align:center}
+h2{margin:0 0 10px 0;color:#c27b00}
+input{width:100%;padding:10px;border-radius:8px;border:2px solid #ffd27a;margin-top:10px}
+button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#ff9d00;color:#fff;font-weight:700;cursor:pointer;width:100%}
+pre{background:#fff9e6;border:1px dashed #ffd27a;padding:10px;border-radius:8px;margin-top:12px;text-align:left;white-space:pre-wrap;word-break:break-word}
+.note{font-size:13px;color:#333;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>View Your Submission</h2>
+  <div class="note">Enter the token you received after signup.</div>
+  <input id="token" placeholder="Paste your token here">
+  <button id="btn">View My Data</button>
+  <div id="result"></div>
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwEXkhRkgiB_KAM0bhntGG4LaJVbmGMU9TwZbmlE_ePDrYQHPXJtDADNZgWYQTOKyRmbg/exec";
+
+document.getElementById('btn').addEventListener('click', async () => {
+  const token = document.getElementById('token').value.trim();
+  if(!token){ alert('Enter token'); return; }
+
+  // try localStorage first (fast, same browser)
+  try{
+    const local = JSON.parse(localStorage.getItem('YallaDiamondUser'));
+    if(local && local.token === token){
+      document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(local,null,2) + '</pre>';
+      return;
+    }
+  }catch(e){}
+
+  if(!WEB_APP_URL || WEB_APP_URL.indexOf('YOUR_GOOGLE_SCRIPT')!==-1){
+    alert('Web App URL not set in this file. Use the same Web App URL you deployed.');
+    return;
+  }
+
+  try{
+    const resp = await fetch(WEB_APP_URL + '?token=' + encodeURIComponent(token));
+    const j = await resp.json();
+    if(j && j.success && j.row){
+      document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(j.row,null,2) + '</pre>';
+    } else {
+      alert('No data found for this token.');
+    }
+  }catch(err){
+    alert('Could not fetch data. Check WEB_APP_URL or network.');
+    console.log(err);
+  }
+});
+</script>
+</body>
+</html>
